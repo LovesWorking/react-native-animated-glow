@@ -197,21 +197,6 @@ const styles = StyleSheet.create({
 
 For a complete list of all available props and their descriptions, please see the **[Docs Tab](https://reactnativeglow.com/docs)** in the live demo app.
 
-## Maintainer Release Checklist
-
-Use this checklist before publishing a new version:
-
-1. Review open issues and pull requests for release-critical fixes.
-2. Update `package.json`, `package-lock.json`, and the changelog.
-3. Run `npm run verify`.
-4. Test the `example/` app on Web and at least one native target with Expo Go or a simulator.
-5. Run `npm pack --dry-run` and confirm the package contents.
-6. Commit the release changes and push a release branch.
-7. Publish with the package-owner npm account.
-8. Confirm `npm view react-native-animated-glow version` reports the new version.
-9. Tag the exact published commit, push the tag, and create a GitHub release.
-10. Close shipped pull requests and issues with credit.
-
 ## Changelog
 
 ### `v3.1.0`
