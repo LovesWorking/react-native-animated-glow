@@ -1,11 +1,11 @@
-import React, { FC, useMemo, ComponentType } from 'react';
+import React, { FC, Suspense } from 'react';
 import type { SharedValue } from 'react-native-reanimated';
-import { WithSkiaWeb } from '@shopify/react-native-skia/lib/module/web';
+import { LoadSkiaWeb } from '@shopify/react-native-skia/lib/module/web';
 const skiaPackageJson = require('@shopify/react-native-skia/package.json');
 const canvasKitVersion = skiaPackageJson.dependencies['canvaskit-wasm'];
 
 import type { Layout, GlowConfig } from './types';
-import { LazyUnifiedSkiaGlow } from './LazyUnifiedSkiaGlow';
+import type { UnifiedSkiaGlowProps } from './UnifiedSkiaGlow';
 
 interface SkiaRootProps {
     layout: Layout;
@@ -15,35 +15,26 @@ interface SkiaRootProps {
     toConfigSV: SharedValue<GlowConfig>;
 }
 
-const SkiaContent: FC<SkiaRootProps> = (props) => {
-    return (
-        <LazyUnifiedSkiaGlow
-            layout={props.layout}
-            masterOpacity={props.skiaOpacity}
-            progress={props.animationProgress}
-            fromConfig={props.fromConfigSV}
-            toConfig={props.toConfigSV}
-        />
-    );
+const skiaWebOptions = {
+    locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/canvaskit-wasm@${canvasKitVersion}/bin/full/${file}`,
 };
 
-export const SkiaRoot: FC<SkiaRootProps> = (props) => {
-    const MemoizedSkiaContent = useMemo((): ComponentType => {
-        return () => <SkiaContent {...props} />;
-    }, [props]);
+const WebUnifiedSkiaGlow = React.lazy<FC<UnifiedSkiaGlowProps>>(async () => {
+    await LoadSkiaWeb(skiaWebOptions);
+    const module = await import('./UnifiedSkiaGlow');
+    return { default: module.UnifiedSkiaGlow };
+});
 
+export const SkiaRoot: FC<SkiaRootProps> = (props) => {
     return (
-        <WithSkiaWeb
-            opts={{
-                locateFile: (file: string) => {
-                    const url = `https://cdn.jsdelivr.net/npm/canvaskit-wasm@${canvasKitVersion}/bin/full/${file}`;
-                    return url;
-                }
-            }}
-            fallback={null}
-            getComponent={() => {
-                return Promise.resolve({ default: MemoizedSkiaContent });
-            }}
-        />
+        <Suspense fallback={null}>
+            <WebUnifiedSkiaGlow
+                layout={props.layout}
+                masterOpacity={props.skiaOpacity}
+                progress={props.animationProgress}
+                fromConfig={props.fromConfigSV}
+                toConfig={props.toConfigSV}
+            />
+        </Suspense>
     );
 };

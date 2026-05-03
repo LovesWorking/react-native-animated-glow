@@ -199,6 +199,13 @@ For a complete list of all available props and their descriptions, please see th
 
 ## Changelog
 
+### `v3.1.0`
+-   Fixed Samsung/Adreno freezes by keeping SkSL color math on `half4` precision.
+-   Fixed Android Expo dev OOMs by avoiding native lazy loading for the Skia renderer.
+-   Fixed Web `WithSkiaWeb` loading so Metro no longer emits the `_ref` runtime error.
+-   Added `react-native` and `default` package export conditions for newer Metro/Expo compatibility.
+-   Added `wrapperStyle` for styling the inner content wrapper.
+
 ### `v3.0.1`
 -   Added `activeState` prop.
 -   Removed insternal state management

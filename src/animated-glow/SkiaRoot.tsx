@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import type { SharedValue } from 'react-native-reanimated';
 import type { Layout, GlowConfig } from './types';
-import { LazyUnifiedSkiaGlow } from './LazyUnifiedSkiaGlow';
+import { UnifiedSkiaGlow } from './UnifiedSkiaGlow';
 
 interface SkiaRootProps {
     layout: Layout;
@@ -13,7 +13,7 @@ interface SkiaRootProps {
 
 export const SkiaRoot: FC<SkiaRootProps> = (props) => {
     return (
-        <LazyUnifiedSkiaGlow
+        <UnifiedSkiaGlow
             layout={props.layout}
             masterOpacity={props.skiaOpacity}
             progress={props.animationProgress}
