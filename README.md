@@ -1,4 +1,4 @@
-# React Native Animated Glow v3.0.1
+# React Native Animated Glow v3.1.0
 
 <div align="center">
 
@@ -197,6 +197,21 @@ const styles = StyleSheet.create({
 
 For a complete list of all available props and their descriptions, please see the **[Docs Tab](https://reactnativeglow.com/docs)** in the live demo app.
 
+## Maintainer Release Checklist
+
+Use this checklist before publishing a new version:
+
+1. Review open issues and pull requests for release-critical fixes.
+2. Update `package.json`, `package-lock.json`, and the changelog.
+3. Run `npm run verify`.
+4. Test the `example/` app on Web and at least one native target with Expo Go or a simulator.
+5. Run `npm pack --dry-run` and confirm the package contents.
+6. Commit the release changes and push a release branch.
+7. Publish with the package-owner npm account.
+8. Confirm `npm view react-native-animated-glow version` reports the new version.
+9. Tag the exact published commit, push the tag, and create a GitHub release.
+10. Close shipped pull requests and issues with credit.
+
 ## Changelog
 
 ### `v3.1.0`
@@ -208,7 +223,7 @@ For a complete list of all available props and their descriptions, please see th
 
 ### `v3.0.1`
 -   Added `activeState` prop.
--   Removed insternal state management
+-   Removed internal state management
 
 ### `v3.0.0` (Breaking Changes)
 This version introduces a more powerful and intelligent animation system along with a complete restructuring of the preset API for better organization and type safety.
