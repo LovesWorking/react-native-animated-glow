@@ -35,13 +35,22 @@ const MAX_SKIA_LAYERS = 10;
 //
 // Two more Samsung Adreno fixes are also load-bearing in this shader:
 //
-//  1. `getGradientColor` uses a FORWARD loop with explicit `break`. The
-//     previous reverse loop (`for (int i = 6; i >= 0; i--)` with
-//     conditional assignment but no break) crashes some Samsung Adreno
-//     compilers at link/first-draw time (verified S25 / Adreno 750,
-//     reproduces on other modern Samsung models). Forward+break produces
-//     identical output (both find the same gradient segment) and compiles
-//     cleanly everywhere. Don't switch back to the reverse form.
+//  1. `getGradientColor` uses a FORWARD loop with a "found" boolean
+//     flag (no break). Three forms have been tried, two of them buggy:
+//       (a) original reverse-no-break: crashes Samsung S25 / Adreno
+//           750 at link/first-draw time (verified, reproduces on
+//           other modern Samsung models).
+//       (b) forward + explicit break: compiles cleanly on Samsung
+//           S25 but produces visible vertical-line artifacts on the
+//           glow output on other Adreno builds — divergent
+//           wavefronts (different fragments break at different
+//           iterations) miscompile in combination with the array
+//           indexing inside the body.
+//       (c) shipping form: forward loop with "found" boolean —
+//           UNIFORM iteration count (always 7), single conditional
+//           write gated by the flag, no break. Same first-match
+//           semantics as (b) without the divergence.
+//     Don't switch back to (a) or (b).
 //
 //  2. Layer rendering is UNROLLED into 7 inline blocks instead of a
 //     `for(i<10)` loop with an 11-way `if/else` chain to "dynamically
@@ -91,15 +100,20 @@ const sksl = `
 
   float smoothCubic(float t) { return t * t * (3.0 - 2.0 * t); }
 
-  // Forward iteration with explicit break (Samsung Adreno fix #1 — see
-  // top-of-file comment). DO NOT switch back to a reverse loop.
+  // Forward iteration with a "found" flag (Samsung Adreno fix #1 — see
+  // top-of-file comment for the three-form history). Uniform iteration
+  // count (always 7), single conditional write gated by the flag, no
+  // break — works on both Samsung S25 and other Adreno builds where the
+  // forward+break form caused vertical-line artifacts.
+  // DO NOT switch to either of the two predecessor forms.
   half4 getGradientColor(float progress, half4 colors[8]) {
     float t = progress * 7.0;
     half4 finalColor = colors[7];
+    bool found = false;
     for (int i = 0; i <= 6; i++) {
-      if (t < float(i + 1)) {
+      if (!found && t < float(i + 1)) {
         finalColor = mix(colors[i], colors[i + 1], half(t - float(i)));
-        break;
+        found = true;
       }
     }
     return finalColor;
